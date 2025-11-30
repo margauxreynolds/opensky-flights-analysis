@@ -1,2 +1,2 @@
-# ds3022-dp3-earthquakes
-This project analyzes data from the USGS Earthquake real-time feed.
+# redfin-real-estate-analysis
+This project analyzes data from the Redfin Real Estate API.
