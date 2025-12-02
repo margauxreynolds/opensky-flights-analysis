@@ -1,5 +1,5 @@
+duckdb
 requests
+prefect
 pandas
 matplotlib
-duckdb
-prefect

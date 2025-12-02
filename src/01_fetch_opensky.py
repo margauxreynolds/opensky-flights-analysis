@@ -18,6 +18,11 @@ def init_db() -> str:
         DB_PATH.parent.mkdir(parents=True, exist_ok=True)
         # Connect to DuckDB (creates file if it doesn't exist)
         con = duckdb.connect(DB_PATH)
+
+        # Drop tables if they already exist
+        con.execute("DROP TABLE IF EXISTS states_raw;")
+        con.execute("DROP TABLE IF EXISTS states_clean;")
+
         # Create a table for raw OpenSky data if it's not already there
         con.execute("""
             CREATE TABLE IF NOT EXISTS states_raw (
@@ -209,6 +214,6 @@ def fetch_many_opensky_snapshots(num_snapshots: int, sleep_seconds: int):
 
 if __name__ == "__main__":
     fetch_many_opensky_snapshots(
-        num_snapshots=12, # Number of snapshots to fetch
+        num_snapshots=15, # Number of snapshots to fetch
         sleep_seconds=10 # Number of seconds between API calls
     )

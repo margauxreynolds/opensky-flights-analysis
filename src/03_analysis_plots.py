@@ -2,25 +2,34 @@ from pathlib import Path
 import duckdb
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 
 DB_PATH = Path("data/opensky.duckdb")
 PLOTS_DIR = Path("plots")
 
 def plot_aircraft_over_time(con):
-    # Count rows per minute to see how flight volume changes over time
+    # Number of aircraft observed over time
     df = con.execute("""
-        SELECT snapshot_minute, COUNT(*) AS count
+        SELECT snapshot_ts, COUNT(*) AS count
         FROM states_clean
-        GROUP BY snapshot_minute
-        ORDER BY snapshot_minute
+        GROUP BY snapshot_ts
+        ORDER BY snapshot_ts;
     """).fetch_df()
 
-    # Plot to show flight volume over time
+    # Line plot of aircraft count over time
     plt.figure(figsize=(10, 5))
-    plt.plot(df["snapshot_minute"], df["count"], marker='o')
-    plt.title("Aircraft Observed Over Time (per minute)")
+    plt.plot(df["snapshot_ts"], df["count"], marker='o', markersize=4, linewidth=1.8, color="skyblue")
+    plt.title("Aircraft Observed Over Time")
     plt.xlabel("Time")
     plt.ylabel("Number of Aircraft")
+    
+    # Format x-axis to show readable times
+    ax = plt.gca()
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.yaxis.grid(True, linestyle="--", alpha=0.3)
+
     plt.xticks(rotation=45)
     plt.tight_layout()
     plt.savefig(PLOTS_DIR / "aircraft_over_time.png")
@@ -38,14 +47,21 @@ def plot_top_countries(con):
 
     # Bar plot of top countries
     plt.figure(figsize=(10, 5))
-    plt.bar(df["origin_country"], df["count"])
+    plt.bar(df["origin_country"], df["count"], color="skyblue")
     plt.title("Top 10 Origin Countries of Aircraft")
     plt.xlabel("Country")
     plt.ylabel("Aircraft Count")
     plt.xticks(rotation=45)
+
+    ax = plt.gca()
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.yaxis.grid(True, linestyle="--", alpha=0.3)
+
     plt.tight_layout()
     plt.savefig(PLOTS_DIR / "top_countries.png")
     plt.close()
+    
 
 def plot_speed_histogram(con):
     # Distribution of aircraft speeds in knots
@@ -57,10 +73,16 @@ def plot_speed_histogram(con):
 
     # Histogram of speeds
     plt.figure(figsize=(10, 5))
-    plt.hist(df["speed_knots"], bins=40)
+    plt.hist(df["speed_knots"], bins=40, color="skyblue")
     plt.title("Distribution of Aircraft Speeds (knots)")
     plt.xlabel("Speed (knots)")
     plt.ylabel("Number of Aircraft")
+
+    ax = plt.gca()
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.yaxis.grid(True, linestyle="--", alpha=0.3)
+
     plt.tight_layout()
     plt.savefig(PLOTS_DIR / "speed_histogram.png")
     plt.close()
